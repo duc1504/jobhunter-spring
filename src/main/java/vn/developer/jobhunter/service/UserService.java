@@ -45,4 +45,8 @@ public class UserService {
         userUpdate.setPassword(user.getPassword());
         return this.userRepository.save(userUpdate);
     }
+    // handle get user by email
+    public User handleGetUserByEmail(String email) {
+        return this.userRepository.findByEmail(email).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with email=" + email, null));
+    }
 }
