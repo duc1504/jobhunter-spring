@@ -25,7 +25,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.turkraft.springfilter.boot.Filter;
 
+import jakarta.validation.Valid;
 import vn.developer.jobhunter.domain.User;
+import vn.developer.jobhunter.domain.dto.ResCreateUserDTO;
+import vn.developer.jobhunter.domain.dto.ResUserDTO;
+import vn.developer.jobhunter.domain.dto.RestUpdateUserDTO;
 import vn.developer.jobhunter.domain.dto.ResultPaginationDTO;
 import vn.developer.jobhunter.domain.dto.searchDTO.UserSearchDTO;
 import vn.developer.jobhunter.service.UserService;
@@ -33,6 +37,7 @@ import vn.developer.jobhunter.util.annotation.ApiMessage;
 import vn.developer.jobhunter.util.error.IdInvaliException;
 
 @RestController
+@RequestMapping("/api/v1")
 public class UserController {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
@@ -45,29 +50,44 @@ public class UserController {
 
      // create new user
      @PostMapping("/users")
-    public ResponseEntity<User> creatNewUser(@RequestBody User userinput) {
+     @ApiMessage(value = "create a new user")
+    public ResponseEntity<ResCreateUserDTO> creatNewUser(@Valid @RequestBody User userinput) throws IdInvaliException {
+        boolean emailExists = userService.existsByEmail(userinput.getEmail());
+        if (emailExists) {
+            throw new IdInvaliException("Email " + userinput.getEmail() + " already exists");
+        }
         User user = new User();
         user.setName(userinput.getName());
         user.setEmail(userinput.getEmail());
         user.setPassword(passwordEncoder.encode(userinput.getPassword()));
+        user.setAge(userinput.getAge());
+        user.setGender(userinput.getGender());
+        user.setAddress(userinput.getAddress());
       User newUser =  userService.handleCreateUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.convertUserToResCreateUserDTO(newUser));
     }
 
     // delete user by id
     @DeleteMapping("/users/{id}")
-    public ResponseEntity<String> deleteUserById(@PathVariable long id){
-        if (id <= 0) {
-            throw new IdInvaliException("Id must be greater than zero");
+    public ResponseEntity<Void> deleteUserById(@PathVariable long id) throws IdInvaliException {
+        User user = userService.handleGetUserById(id);
+        if (user == null) {
+            throw new IdInvaliException("User not found with id=" + id);
         }
     userService.handleDeleteUser(id);
-        return ResponseEntity.ok("User deleted successfully");
+        return ResponseEntity.ok(null);
     }
 
     // get user by id
     @GetMapping("/users/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable long id) {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.handleGetUserById(id));
+    @ApiMessage(value = "fetch user by id")
+    public ResponseEntity<ResUserDTO> getUserById(@PathVariable long id) {
+        User user = userService.handleGetUserById(id);
+        if (user == null) {
+            throw new IdInvaliException("User not found with id=" + id);
+        }
+        User userget = userService.handleGetUserById(id);
+        return ResponseEntity.status(HttpStatus.OK).body(userService.convertUserToResUserDTO(userget));
     }
 
     // get all user
@@ -83,8 +103,10 @@ public class UserController {
 
     // update user
     @PutMapping("/users")
-    public ResponseEntity<User> updateUser(@RequestBody User userinput) {
-       return    ResponseEntity.status(HttpStatus.OK).body(this.userService.handleUpdateUser(userinput));
+    public ResponseEntity<RestUpdateUserDTO> updateUser(@RequestBody User userinput){
+        
+        User user = this.userService.handleUpdateUser(userinput);
+       return ResponseEntity.status(HttpStatus.OK).body(this.userService.convertUserToResUpdateUserDTO(user));
     }
 
 }

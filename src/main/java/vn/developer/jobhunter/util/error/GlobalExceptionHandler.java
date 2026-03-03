@@ -11,12 +11,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import vn.developer.jobhunter.domain.RestResponse;
 
  @RestControllerAdvice
 public class GlobalExceptionHandler {
-@ExceptionHandler(value = {UsernameNotFoundException.class,BadCredentialsException.class})
+@ExceptionHandler(value = {UsernameNotFoundException.class,BadCredentialsException.class, IdInvaliException.class})
     public ResponseEntity<RestResponse<Object>> handleAuthExceptions (Exception  ex){
          RestResponse<Object> res = new RestResponse<Object>();
         res.setError(ex.getMessage());
@@ -41,5 +42,15 @@ public ResponseEntity<RestResponse<Object>> handleMethodArgumentNotValidExceptio
     res.setStatusCode(HttpStatus.BAD_REQUEST.value());
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
 }
+@ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Object> handleNotFound(ResourceNotFoundException ex) {
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of(
+                        "status", 404,
+                        "error", "NOT_FOUND",
+                        "message", ex.getMessage()
+                ));
+    }
 
 }
