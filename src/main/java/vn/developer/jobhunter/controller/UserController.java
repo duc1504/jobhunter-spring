@@ -1,7 +1,11 @@
 package vn.developer.jobhunter.controller;
 
 import java.util.List;
+import java.util.Optional;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -16,10 +20,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.turkraft.springfilter.boot.Filter;
+
 import vn.developer.jobhunter.domain.User;
+import vn.developer.jobhunter.domain.dto.ResultPaginationDTO;
+import vn.developer.jobhunter.domain.dto.searchDTO.UserSearchDTO;
 import vn.developer.jobhunter.service.UserService;
+import vn.developer.jobhunter.util.annotation.ApiMessage;
 import vn.developer.jobhunter.util.error.IdInvaliException;
 
 @RestController
@@ -62,8 +72,13 @@ public class UserController {
 
     // get all user
     @GetMapping("/users")
-    public ResponseEntity<List<User>> getAllUser() {
-         return ResponseEntity.status(HttpStatus.OK).body(userService.handleGetAllUser());
+    @ApiMessage(value = "fetch all users")
+    public ResponseEntity<ResultPaginationDTO> getAllUser(
+        UserSearchDTO filter,
+        Pageable pageable
+    ) {
+        // Pageable pageable = PageRequest.of(currentPage-1, pageSize);
+         return ResponseEntity.status(HttpStatus.OK).body(userService.handleGetAllUser(filter,pageable));
     }
 
     // update user

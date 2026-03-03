@@ -1,13 +1,20 @@
 package vn.developer.jobhunter.service;
 
 import java.util.List;
-import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import vn.developer.jobhunter.domain.User;
+import vn.developer.jobhunter.domain.dto.Meta;
+import vn.developer.jobhunter.domain.dto.ResUserDTO;
+import vn.developer.jobhunter.domain.dto.ResultPaginationDTO;
+import vn.developer.jobhunter.domain.dto.searchDTO.UserSearchDTO;
+import vn.developer.jobhunter.domain.specification.UserSpecification;
 import vn.developer.jobhunter.repository.UserRepository;
 
 @Service
@@ -34,8 +41,19 @@ public class UserService {
     }
 
     // handle get all user
-    public List<User> handleGetAllUser () {
-        return this.userRepository.findAll();
+    public ResultPaginationDTO<List<ResUserDTO>> handleGetAllUser (UserSearchDTO filter,Pageable pageable){ 
+        Specification<User> spec = UserSpecification.buildFilterUser(filter);
+        Page<User> page = this.userRepository.findAll(spec,pageable);
+        Page<ResUserDTO> UserDTO = page.map(user -> new ResUserDTO(user.getId(), user.getName(), user.getEmail()));
+        ResultPaginationDTO<List<ResUserDTO>> result = new ResultPaginationDTO();
+        Meta meta = new Meta();
+        meta.setPage(page.getNumber() + 1);
+        meta.setPageSize(page.getSize());
+        meta.setPages(page.getTotalPages());
+        meta.setTotal(page.getTotalElements());
+        result.setMeta(meta);
+        result.setResult(UserDTO.getContent());
+        return result;
     }
     // hanlde update user
     public User handleUpdateUser(User user) {

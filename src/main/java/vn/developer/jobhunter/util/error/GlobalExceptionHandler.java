@@ -37,12 +37,7 @@ public ResponseEntity<RestResponse<Object>> handleMethodArgumentNotValidExceptio
           );
       });
     RestResponse<Object> res = new RestResponse<Object>();
-    if (errors.size() == 1) {
-        String singleMessage = errors.values().iterator().next();
-        res.setMessage(singleMessage);
-    } else {
-        res.setMessage(errors);
-    }
+    res.setMessage(errors);
     res.setStatusCode(HttpStatus.BAD_REQUEST.value());
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
 }

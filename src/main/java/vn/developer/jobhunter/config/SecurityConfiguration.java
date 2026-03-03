@@ -17,6 +17,8 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.web.SecurityFilterChain;
@@ -36,27 +38,37 @@ public class SecurityConfiguration {
     }
 
     @Bean
-public SecurityFilterChain securityFilterChain(HttpSecurity http, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+            CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
 
-    http
-        .csrf(csrf -> csrf.disable())
-        .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/login").permitAll()
-                .anyRequest().authenticated())
-            .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults())
-            .authenticationEntryPoint(customAuthenticationEntryPoint)
-        )
-        //     .exceptionHandling(ex -> ex
-        //     .authenticationEntryPoint( new BearerTokenAuthenticationEntryPoint()) // 401
-        //     .accessDeniedHandler(new BearerTokenAccessDeniedHandler()) // 403
-        // )
-            .formLogin(f -> f.disable())
-            .sessionManagement(session ->
-            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        );
+        http
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/", "/login").permitAll()
+                        .anyRequest().authenticated())
+                .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults())
+                        .authenticationEntryPoint(customAuthenticationEntryPoint))
+                // .exceptionHandling(ex -> ex
+                // .authenticationEntryPoint( new BearerTokenAuthenticationEntryPoint()) // 401
+                // .accessDeniedHandler(new BearerTokenAccessDeniedHandler()) // 403
+                // )
+                .formLogin(f -> f.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-    return http.build();
-}
+        return http.build();
+    }
+
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        grantedAuthoritiesConverter.setAuthorityPrefix("");
+        grantedAuthoritiesConverter.setAuthoritiesClaimName("ngocduc");
+
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+        return jwtAuthenticationConverter;
+    }
+
     @Value("${developer.jwt.base64-secret}")
     private String jwtKey;
 
@@ -65,13 +77,15 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http, CustomAuthenti
         return new SecretKeySpec(keyBytes, 0, keyBytes.length,
                 SecurityUtil.JWT_ALGORITHM.getName());
     }
+
     @Bean
-public JwtDecoder jwtDecoder() {
-    return NimbusJwtDecoder
-            .withSecretKey(getSecretKey())
-            .macAlgorithm(SecurityUtil.JWT_ALGORITHM)
-            .build();
+    public JwtDecoder jwtDecoder() {
+        return NimbusJwtDecoder
+                .withSecretKey(getSecretKey())
+                .macAlgorithm(SecurityUtil.JWT_ALGORITHM)
+                .build();
     }
+
     @Bean
     public JwtEncoder jwtEncoder() {
         return new NimbusJwtEncoder(new ImmutableSecret<>(getSecretKey()));
