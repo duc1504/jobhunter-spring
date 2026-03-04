@@ -113,4 +113,15 @@ public class UserService {
         restUpdateUserDTO.setUpdatedAt(user.getUpdatedAt());
         return restUpdateUserDTO;
     }
+
+    // update user token
+    public void updateUserToken(String email, String refreshToken) {
+        User user = this.handleGetUserByEmail(email);
+        user.setRefreshToken(refreshToken);
+        this.userRepository.save(user);
+    }
+
+    public User handleGetUserByRefreshToken(String refreshToken,String email) {
+        return this.userRepository.findByRefreshTokenAndEmail(refreshToken,email);
+    }
 }

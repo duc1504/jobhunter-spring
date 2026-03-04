@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -51,6 +52,14 @@ public ResponseEntity<RestResponse<Object>> handleMethodArgumentNotValidExceptio
                         "error", "NOT_FOUND",
                         "message", ex.getMessage()
                 ));
+    }
+@ExceptionHandler(MissingRequestCookieException.class)
+public ResponseEntity<RestResponse<Object>> handleMissingRequestCookieException (Exception  ex){
+         RestResponse<Object> res = new RestResponse<Object>();
+        res.setError(ex.getMessage());
+        res.setMessage("Không có cookie");
+        res.setStatusCode(HttpStatus.BAD_REQUEST.value());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
 
 }
