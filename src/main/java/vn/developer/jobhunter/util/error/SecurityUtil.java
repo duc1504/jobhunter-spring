@@ -24,7 +24,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
-import vn.developer.jobhunter.domain.dto.ResLoginDTO;
+import vn.developer.jobhunter.domain.response.ResLoginDTO;
 
 @Service
 public class SecurityUtil {

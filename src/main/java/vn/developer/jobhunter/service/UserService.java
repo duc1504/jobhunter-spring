@@ -11,11 +11,11 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import vn.developer.jobhunter.domain.User;
-import vn.developer.jobhunter.domain.dto.ResCreateUserDTO;
-import vn.developer.jobhunter.domain.dto.ResUserDTO;
-import vn.developer.jobhunter.domain.dto.RestUpdateUserDTO;
-import vn.developer.jobhunter.domain.dto.ResultPaginationDTO;
 import vn.developer.jobhunter.domain.dto.searchDTO.UserSearchDTO;
+import vn.developer.jobhunter.domain.response.ResCreateUserDTO;
+import vn.developer.jobhunter.domain.response.ResUserDTO;
+import vn.developer.jobhunter.domain.response.RestUpdateUserDTO;
+import vn.developer.jobhunter.domain.response.ResultPaginationDTO;
 import vn.developer.jobhunter.domain.specification.UserSpecification;
 import vn.developer.jobhunter.repository.UserRepository;
 import vn.developer.jobhunter.util.error.ResourceNotFoundException;

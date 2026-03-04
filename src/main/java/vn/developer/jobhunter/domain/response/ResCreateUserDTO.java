@@ -1,4 +1,4 @@
-package vn.developer.jobhunter.domain.dto;
+package vn.developer.jobhunter.domain.response;
 
 import java.time.Instant;
 
@@ -7,11 +7,12 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class RestUpdateUserDTO {
+public class ResCreateUserDTO {
     private long id;
     private String name;
+    private String email;
     private String gender;
     private String address;
-    private int age;
-    private Instant updatedAt;
+     private int age;
+     private Instant createdAt;
 }

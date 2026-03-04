@@ -8,8 +8,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import vn.developer.jobhunter.domain.Company;
-import vn.developer.jobhunter.domain.dto.ResultPaginationDTO;
 import vn.developer.jobhunter.domain.dto.searchDTO.CompanySearchDTO;
+import vn.developer.jobhunter.domain.response.ResultPaginationDTO;
 import vn.developer.jobhunter.domain.specification.CompanySpecification;
 import vn.developer.jobhunter.repository.CompanyRepository;
 

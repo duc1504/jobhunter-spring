@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import vn.developer.jobhunter.domain.User;
-import vn.developer.jobhunter.domain.dto.ResLoginDTO;
 import vn.developer.jobhunter.domain.request.ReqLoginDTO;
+import vn.developer.jobhunter.domain.response.ResLoginDTO;
 import vn.developer.jobhunter.service.UserService;
 import vn.developer.jobhunter.util.annotation.ApiMessage;
 import vn.developer.jobhunter.util.error.IdInvaliException;
