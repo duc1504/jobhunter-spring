@@ -11,7 +11,6 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import vn.developer.jobhunter.domain.User;
-import vn.developer.jobhunter.domain.dto.Meta;
 import vn.developer.jobhunter.domain.dto.ResCreateUserDTO;
 import vn.developer.jobhunter.domain.dto.ResUserDTO;
 import vn.developer.jobhunter.domain.dto.RestUpdateUserDTO;
@@ -50,7 +49,7 @@ public class UserService {
         Page<User> page = this.userRepository.findAll(spec,pageable);
         Page<ResUserDTO> UserDTO = page.map(user -> new ResUserDTO(user.getId(),user.getName(),user.getEmail(),user.getGender(),user.getAddress(),user.getAge(),user.getCreatedAt(),user.getUpdatedAt()));
         ResultPaginationDTO<List<ResUserDTO>> result = new ResultPaginationDTO();
-        Meta meta = new Meta();
+        ResultPaginationDTO.Meta meta = new ResultPaginationDTO.Meta();
         meta.setPage(page.getNumber() + 1);
         meta.setPageSize(page.getSize());
         meta.setPages(page.getTotalPages());

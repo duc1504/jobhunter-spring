@@ -1,4 +1,4 @@
-package vn.developer.jobhunter.service;
+package vn.developer.jobhunter.config;
 
 import java.util.Collections;
 

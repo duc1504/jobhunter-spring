@@ -17,9 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import vn.developer.jobhunter.domain.User;
-import vn.developer.jobhunter.domain.dto.LoginDTO;
 import vn.developer.jobhunter.domain.dto.ResLoginDTO;
-import vn.developer.jobhunter.domain.dto.ResLoginDTO.UserLogin;
+import vn.developer.jobhunter.domain.request.ReqLoginDTO;
 import vn.developer.jobhunter.service.UserService;
 import vn.developer.jobhunter.util.annotation.ApiMessage;
 import vn.developer.jobhunter.util.error.IdInvaliException;
@@ -48,16 +47,16 @@ public class AuthController {
     }
 
     @PostMapping("/auth/login")
-    public ResponseEntity<ResLoginDTO> Login(@Valid @RequestBody LoginDTO loginDTO) {
+    public ResponseEntity<ResLoginDTO> Login(@Valid @RequestBody ReqLoginDTO reqLoginDTO) {
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                loginDTO.getUsername(),
-                loginDTO.getPassword());
+                reqLoginDTO.getUsername(),
+                reqLoginDTO.getPassword());
         // Xác thực người dùng => cần viết hàm loadUserByUsername
         Authentication authentication = authenticationManagerBuidler.getObject().authenticate(authToken);
         // Set thông tin người dùng với SecurityContextHolder (sau này sẽ dùng)
         SecurityContextHolder.getContext().setAuthentication(authentication);
         ResLoginDTO resLoginDTO = new ResLoginDTO();
-        User user = this.userService.handleGetUserByEmail(loginDTO.getUsername());
+        User user = this.userService.handleGetUserByEmail(reqLoginDTO.getUsername());
         if (user != null) {
             ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(user.getId(), user.getEmail(), user.getName());
             resLoginDTO.setUser(userLogin);
@@ -66,8 +65,8 @@ public class AuthController {
 
         String accessToken = this.securityUtil.createAccessToken(authentication.getName(), resLoginDTO.getUser());
         resLoginDTO.setAccessToken(accessToken);
-        String refreshToken = this.securityUtil.createRefreshToken(loginDTO.getUsername(), resLoginDTO.getUser());
-        this.userService.updateUserToken(loginDTO.getUsername(), refreshToken);
+        String refreshToken = this.securityUtil.createRefreshToken(reqLoginDTO.getUsername(), resLoginDTO.getUser());
+        this.userService.updateUserToken(reqLoginDTO.getUsername(), refreshToken);
         ResponseCookie cookie = ResponseCookie.from("refresh_token", refreshToken)
                 .httpOnly(true)
                 .secure(true)
