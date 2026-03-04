@@ -80,7 +80,7 @@ public class AuthController {
 
     @GetMapping("/auth/account")
     @ApiMessage(value = "fetch account")
-    public ResponseEntity<ResLoginDTO.UserLogin> getAccount() {
+    public ResponseEntity<ResLoginDTO.ResAccountDTO> getAccount() {
         String email = this.securityUtil.getCurrentUserLogin().orElse(null);
         User user = this.userService.handleGetUserByEmail(email);
         ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin();
@@ -89,7 +89,7 @@ public class AuthController {
             userLogin.setEmail(user.getEmail());
             userLogin.setName(user.getName());
         }
-        return ResponseEntity.ok().body(userLogin);
+        return ResponseEntity.ok().body( new ResLoginDTO.ResAccountDTO(userLogin));
     }
 
     // refresh token
