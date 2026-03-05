@@ -56,6 +56,10 @@ public class CompanyController {
         return ResponseEntity.status(HttpStatus.OK).body(companyService.handleGetAllCompany(companySearchDTO,pageable));
     }
 
+ 
+
+
+
     @PutMapping("/companies")
     public ResponseEntity<Company> updatedCompany(@Valid @RequestBody Company reqCompany) {
         return ResponseEntity.status(HttpStatus.OK).body(companyService.handleUpdateCompany(reqCompany));

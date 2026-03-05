@@ -1,4 +1,4 @@
-package vn.developer.jobhunter.util.error;
+package vn.developer.jobhunter.util;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

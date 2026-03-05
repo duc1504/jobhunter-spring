@@ -26,7 +26,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.util.Base64;
 
-import vn.developer.jobhunter.util.error.SecurityUtil;
+import vn.developer.jobhunter.util.SecurityUtil;
 
 @Configuration
 @EnableMethodSecurity

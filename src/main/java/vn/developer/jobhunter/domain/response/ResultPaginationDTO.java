@@ -1,5 +1,7 @@
 package vn.developer.jobhunter.domain.response;
 
+import java.util.List;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,7 +9,7 @@ import lombok.Setter;
 @Setter
 public class ResultPaginationDTO<T> {
     private Meta meta;
-    private T result;
+    private List<T> result;
     @Getter
     @Setter
     public static class Meta {

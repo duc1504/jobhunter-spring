@@ -20,9 +20,9 @@ import vn.developer.jobhunter.domain.User;
 import vn.developer.jobhunter.domain.request.ReqLoginDTO;
 import vn.developer.jobhunter.domain.response.ResLoginDTO;
 import vn.developer.jobhunter.service.UserService;
+import vn.developer.jobhunter.util.SecurityUtil;
 import vn.developer.jobhunter.util.annotation.ApiMessage;
 import vn.developer.jobhunter.util.error.IdInvaliException;
-import vn.developer.jobhunter.util.error.SecurityUtil;
 
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;

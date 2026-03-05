@@ -1,5 +1,9 @@
 package vn.developer.jobhunter.domain;
+
 import java.time.Instant;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,6 +14,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
@@ -18,27 +24,29 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 import vn.developer.jobhunter.util.SecurityUtil;
-import vn.developer.jobhunter.util.constant.GenderEnum;
+import vn.developer.jobhunter.util.constant.LevelEnum;
 
 @Entity
+@Table(name = "jobs")
 @Getter
 @Setter
-@Table(name = "users")
-public class User {
-     @Id
-     @GeneratedValue(strategy = GenerationType.IDENTITY)
-     private long id;
+public class Job {
+@Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+    @NotBlank(message = "name không được để trống")
     private String name;
-    @NotBlank(message = "email không được để trống")
-    private String email;
-    @NotBlank(message = "mật khẩu không được để trống")
-    private String password;
-    private int age;
+    @NotBlank(message = "location không được để trống")
+    private String location;
+    private double salary;
+    private int quantity;
     @Enumerated(EnumType.STRING)
-    private GenderEnum gender;
-    private String address;
+    private LevelEnum level;
     @Column(columnDefinition = "MEDIUMTEXT")
-    private String refreshToken;
+    private String description;
+    private Instant startDate;
+    private Instant endDate;
+    private boolean active;
     private Instant createdAt;
     private Instant updatedAt;
     private String createdBy;
@@ -46,6 +54,12 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "company_id")
     private Company company;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = { "jobs" })
+    @JoinTable(name = "job_skill", joinColumns = @JoinColumn(name = "job_id"), inverseJoinColumns = @JoinColumn(name = "skill_id"))
+    private List<Skill> skills;
+
     @PrePersist
      public void prePersist() {
           createdAt = Instant.now();
@@ -56,5 +70,5 @@ public class User {
           updatedAt = Instant.now();
           updatedBy = SecurityUtil.getCurrentUserLogin().orElse("system");
      }
-}
 
+}

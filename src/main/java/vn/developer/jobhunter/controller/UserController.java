@@ -57,13 +57,8 @@ public class UserController {
             throw new IdInvaliException("Email " + userinput.getEmail() + " already exists");
         }
         User user = new User();
-        user.setName(userinput.getName());
-        user.setEmail(userinput.getEmail());
-        user.setPassword(passwordEncoder.encode(userinput.getPassword()));
-        user.setAge(userinput.getAge());
-        user.setGender(userinput.getGender());
-        user.setAddress(userinput.getAddress());
-      User newUser =  userService.handleCreateUser(user);
+        userinput.setPassword(passwordEncoder.encode(userinput.getPassword()));
+      User newUser =  userService.handleCreateUser(userinput);
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.convertUserToResCreateUserDTO(newUser));
     }
 
