@@ -92,7 +92,7 @@ public class UserController {
         UserSearchDTO filter,
         Pageable pageable
     ) {
-        // Pageable pageable = PageRequest.of(currentPage-1, pageSize);
+        
          return ResponseEntity.status(HttpStatus.OK).body(userService.handleGetAllUser(filter,pageable));
     }
 

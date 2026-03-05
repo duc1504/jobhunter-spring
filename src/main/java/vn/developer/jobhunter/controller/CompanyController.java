@@ -52,7 +52,7 @@ public class CompanyController {
      CompanySearchDTO companySearchDTO,
      Pageable pageable
     ) {
-        // Pageable pageable = PageRequest.of(currentPage-1, pageSize);
+        
         return ResponseEntity.status(HttpStatus.OK).body(companyService.handleGetAllCompany(companySearchDTO,pageable));
     }
 
