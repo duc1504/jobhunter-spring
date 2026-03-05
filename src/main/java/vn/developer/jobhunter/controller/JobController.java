@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -44,10 +45,10 @@ public class JobController {
     }
 
     // delete job
-    @DeleteMapping("/jobs")
+    @DeleteMapping("/jobs/{id}")
     @ApiMessage("delete job")
-    public ResponseEntity<Void> deleteJob(@RequestBody Job job) {
-        jobService.handleDeleteJob(job.getId());
+    public ResponseEntity<Void> deleteJob(@PathVariable long id) {
+        jobService.handleDeleteJob(id);
         return ResponseEntity.ok(null);
     }
 
