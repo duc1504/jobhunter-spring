@@ -64,6 +64,9 @@ public class JobService {
         resCreateJobDTO.setActive(jobDB.isActive());
         resCreateJobDTO.setCreatedAt(jobDB.getCreatedAt());
         resCreateJobDTO.setCreatedBy(jobDB.getCreatedBy());
+        if (jobDB.getSkills() != null) {
+            resCreateJobDTO.setSkills(jobDB.getSkills().stream().map(Skill::getName).collect(Collectors.toList()));
+        }
         return resCreateJobDTO;
     }
 
@@ -115,8 +118,12 @@ public class JobService {
     }
 
     // delete job
+    @Transactional
     public void handleDeleteJob(long id) {
-        this.jobRepository.findById(id).orElseThrow(() -> new IdInvaliException("Job not found"));
+        Job job = jobRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Job not found"));
+        job.getSkills().clear();
+        jobRepository.delete(job);
     }
     
     // get all job 

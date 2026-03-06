@@ -62,4 +62,6 @@ public class JobController {
         
          return ResponseEntity.status(HttpStatus.OK).body(jobService.handleGetAllJob(filter,pageable));
     }
+
+    
 }
