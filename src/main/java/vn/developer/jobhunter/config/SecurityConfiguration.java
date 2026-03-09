@@ -44,10 +44,11 @@ public class SecurityConfiguration {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/api/v1/auth/login","/api/v1/auth/refresh").permitAll()
+                        .requestMatchers("/", "/api/v1/auth/login","/api/v1/auth/refresh","/storage/**").permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults())
                         .authenticationEntryPoint(customAuthenticationEntryPoint))
+                        
                 // .exceptionHandling(ex -> ex
                 // .authenticationEntryPoint( new BearerTokenAuthenticationEntryPoint()) // 401
                 // .accessDeniedHandler(new BearerTokenAccessDeniedHandler()) // 403
@@ -68,6 +69,7 @@ public class SecurityConfiguration {
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
         return jwtAuthenticationConverter;
     }
+    
 
     @Value("${developer.jwt.base64-secret}")
     private String jwtKey;
