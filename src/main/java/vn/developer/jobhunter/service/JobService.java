@@ -21,6 +21,7 @@ import vn.developer.jobhunter.repository.CompanyRepository;
 import vn.developer.jobhunter.repository.JobRepository;
 import vn.developer.jobhunter.repository.SkillRepository;
 import vn.developer.jobhunter.util.error.IdInvaliException;
+import vn.developer.jobhunter.util.error.ResourceNotFoundException;
 
 @Service
 public class JobService {
@@ -140,5 +141,9 @@ public class JobService {
         rs.setResult(pageUser.getContent());
 
         return rs;
+    }
+    // get job by id
+    public Job handleGetJobById(long id) {
+        return this.jobRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Job not found with id= " + id));
     }
 }

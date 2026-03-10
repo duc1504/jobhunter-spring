@@ -35,6 +35,9 @@ dependencies {
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	runtimeOnly("com.mysql:mysql-connector-j")
 	testImplementation("org.springframework.security:spring-security-test")
+	implementation("org.mapstruct:mapstruct:1.5.5.Final")
+	annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")
+	annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
 
 }
 
