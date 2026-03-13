@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import vn.developer.jobhunter.domain.dto.searchDTO.ResumeSearchDTO;
 import vn.developer.jobhunter.domain.response.ResultPaginationDTO;
@@ -20,6 +21,7 @@ import vn.developer.jobhunter.domain.response.resume.ResResumeDTO;
 import vn.developer.jobhunter.mapper.ResumeMapper;
 import vn.developer.jobhunter.service.ResumeService;
 import vn.developer.jobhunter.util.annotation.ApiMessage;
+import vn.developer.jobhunter.util.error.IdInvaliException;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -29,7 +31,7 @@ public class ResumeController {
     //  create new resume
     @PostMapping("/resumes")
     @ApiMessage("Create a resume")
-    public ResponseEntity<ResResumeDTO> createResume(@RequestBody ReqCreateResumeDTO dto) {
+    public ResponseEntity<ResResumeDTO> createResume(@Valid @RequestBody ReqCreateResumeDTO dto) {
         ResResumeDTO resResumeDTO = this.resumeService.handleCreateResume(dto);
         return ResponseEntity.ok(resResumeDTO);
     }
@@ -53,7 +55,7 @@ public class ResumeController {
         // delete resume
         @DeleteMapping("/resumes/{id}")
         @ApiMessage("Delete a resume")
-        public ResponseEntity<Void> deleteResume(@PathVariable long id) {
+        public ResponseEntity<Void> deleteResume(@PathVariable long id)  throws IdInvaliException {
             this.resumeService.handleDeleteResume(id);
             return ResponseEntity.ok(null);
         }

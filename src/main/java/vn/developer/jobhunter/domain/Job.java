@@ -69,12 +69,12 @@ public class Job {
     @PrePersist
      public void prePersist() {
           createdAt = Instant.now();
-          createdBy = SecurityUtil.getCurrentUserLogin().orElse("system");
+          createdBy = SecurityUtil.getCurrentUserLogin().orElse(null);
      }
      @PreUpdate
      public void preUpdate() {
           updatedAt = Instant.now();
-          updatedBy = SecurityUtil.getCurrentUserLogin().orElse("system");
+          updatedBy = SecurityUtil.getCurrentUserLogin().orElse(null);
      }
 
 }

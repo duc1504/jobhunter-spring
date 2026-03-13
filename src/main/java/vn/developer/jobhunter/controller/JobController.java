@@ -16,6 +16,7 @@ import jakarta.validation.Valid;
 import vn.developer.jobhunter.domain.Job;
 import vn.developer.jobhunter.domain.dto.searchDTO.JobSearchDTO;
 import vn.developer.jobhunter.domain.dto.searchDTO.UserSearchDTO;
+import vn.developer.jobhunter.domain.request.job.ReqUpdateJobDTO;
 import vn.developer.jobhunter.domain.response.ResultPaginationDTO;
 import vn.developer.jobhunter.domain.response.job.ResCreateJobDTO;
 import vn.developer.jobhunter.domain.response.job.ResUpdateJobDTO;
@@ -40,7 +41,7 @@ public class JobController {
     // update job
     @PutMapping("/jobs")
     @ApiMessage("Create a job")
-    public ResponseEntity<ResUpdateJobDTO> updateJob(@Valid @RequestBody Job job) {
+    public ResponseEntity<ResUpdateJobDTO> updateJob(@Valid @RequestBody ReqUpdateJobDTO job) {
         return ResponseEntity.status(201).body(jobService.handleUpdateJob(job));
     }
 

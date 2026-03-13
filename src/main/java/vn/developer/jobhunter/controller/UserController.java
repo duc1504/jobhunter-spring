@@ -28,6 +28,7 @@ import com.turkraft.springfilter.boot.Filter;
 import jakarta.validation.Valid;
 import vn.developer.jobhunter.domain.User;
 import vn.developer.jobhunter.domain.dto.searchDTO.UserSearchDTO;
+import vn.developer.jobhunter.domain.request.user.ReqUpdateUserDTO;
 import vn.developer.jobhunter.domain.response.ResCreateUserDTO;
 import vn.developer.jobhunter.domain.response.ResUserDTO;
 import vn.developer.jobhunter.domain.response.RestUpdateUserDTO;
@@ -41,16 +42,15 @@ import vn.developer.jobhunter.util.error.IdInvaliException;
 public class UserController {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
-    
-     
+
     public UserController(UserService userService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
     }
 
-     // create new user
-     @PostMapping("/users")
-     @ApiMessage(value = "create a new user")
+    // create new user
+    @PostMapping("/users")
+    @ApiMessage(value = "create a new user")
     public ResponseEntity<ResCreateUserDTO> creatNewUser(@Valid @RequestBody User userinput) throws IdInvaliException {
         boolean emailExists = userService.existsByEmail(userinput.getEmail());
         if (emailExists) {
@@ -58,7 +58,7 @@ public class UserController {
         }
         User user = new User();
         userinput.setPassword(passwordEncoder.encode(userinput.getPassword()));
-      User newUser =  userService.handleCreateUser(userinput);
+        User newUser = userService.handleCreateUser(userinput);
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.convertUserToResCreateUserDTO(newUser));
     }
 
@@ -69,7 +69,7 @@ public class UserController {
         if (user == null) {
             throw new IdInvaliException("User not found with id=" + id);
         }
-    userService.handleDeleteUser(id);
+        userService.handleDeleteUser(id);
         return ResponseEntity.ok(null);
     }
 
@@ -89,20 +89,17 @@ public class UserController {
     @GetMapping("/users")
     @ApiMessage(value = "fetch all users")
     public ResponseEntity<ResultPaginationDTO> getAllUser(
-        UserSearchDTO filter,
-        Pageable pageable
-    ) {
-        
-         return ResponseEntity.status(HttpStatus.OK).body(userService.handleGetAllUser(filter,pageable));
+            UserSearchDTO filter,
+            Pageable pageable) {
+
+        return ResponseEntity.status(HttpStatus.OK).body(userService.handleGetAllUser(filter, pageable));
     }
 
     // update user
     @PutMapping("/users")
-    public ResponseEntity<RestUpdateUserDTO> updateUser(@RequestBody User userinput){
-        
-        User user = this.userService.handleUpdateUser(userinput);
-       return ResponseEntity.status(HttpStatus.OK).body(this.userService.convertUserToResUpdateUserDTO(user));
+    public ResponseEntity<RestUpdateUserDTO> updateUser(
+            @RequestBody ReqUpdateUserDTO userinput) {
+        return ResponseEntity.ok(userService.handleUpdateUser(userinput));
     }
 
 }
-

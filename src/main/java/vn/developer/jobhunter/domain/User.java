@@ -32,6 +32,7 @@ public class User {
      @Id
      @GeneratedValue(strategy = GenerationType.IDENTITY)
      private long id;
+     @NotBlank(message = "name không được để trống")
     private String name;
     @NotBlank(message = "email không được để trống")
     private String email;

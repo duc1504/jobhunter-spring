@@ -13,6 +13,7 @@ public interface ResumeMapper {
         @Mapping(source = "user.name", target = "user.name")
         @Mapping(source = "job.id", target = "job.id")
         @Mapping(source = "job.name", target = "job.name")
+        @Mapping(source = "job.company.name", target = "companyName")
         ResResumeDTO toDTO(Resume resume);
     Resume toEntity(ReqCreateResumeDTO dto);
 

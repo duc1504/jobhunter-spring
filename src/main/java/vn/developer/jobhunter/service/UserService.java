@@ -12,64 +12,66 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import vn.developer.jobhunter.domain.Company;
 import vn.developer.jobhunter.domain.User;
 import vn.developer.jobhunter.domain.dto.searchDTO.UserSearchDTO;
+import vn.developer.jobhunter.domain.request.user.ReqUpdateUserDTO;
 import vn.developer.jobhunter.domain.response.ResCreateUserDTO;
 import vn.developer.jobhunter.domain.response.ResUserDTO;
 import vn.developer.jobhunter.domain.response.RestUpdateUserDTO;
 import vn.developer.jobhunter.domain.response.ResultPaginationDTO;
 import vn.developer.jobhunter.domain.specification.UserSpecification;
+import vn.developer.jobhunter.mapper.UserMapper;
 import vn.developer.jobhunter.repository.UserRepository;
 import vn.developer.jobhunter.util.error.ResourceNotFoundException;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final CompanyService companyService;
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
-    public UserService(UserRepository userRepository, CompanyService companyService) {
-        this.userRepository = userRepository;
-        this.companyService = companyService;
-    }
-
-    //  handle create user
+    // handle create user
     public User handleCreateUser(User user) {
-        // check company 
-        if (user.getCompany() !=null) {
+        // check company
+        if (user.getCompany() != null) {
             Optional<Company> companyOptional = this.companyService.handleGetCompanyById(user.getCompany().getId());
-            user.setCompany(companyOptional.isPresent() ? companyOptional.get() : null );
+            user.setCompany(companyOptional.isPresent() ? companyOptional.get() : null);
         }
-      return this.userRepository.save(user);
+        return this.userRepository.save(user);
     }
-    //  handle delete user
+
+    // handle delete user
     public void handleDeleteUser(long id) {
-    this.userRepository.deleteById(id);
+        this.userRepository.deleteById(id);
     }
 
     // handle get user by id
-    public User handleGetUserById (long id){
-       return  this.userRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("User not found with id=" + id));
-      
+    public User handleGetUserById(long id) {
+        return this.userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id=" + id));
+
     }
 
     // handle get all user
-    public ResultPaginationDTO<ResUserDTO> handleGetAllUser (UserSearchDTO filter,Pageable pageable){ 
+    public ResultPaginationDTO<ResUserDTO> handleGetAllUser(UserSearchDTO filter, Pageable pageable) {
         Specification<User> spec = UserSpecification.buildFilterUser(filter);
-        Page<User> page = this.userRepository.findAll(spec,pageable);
-        Page<ResUserDTO> UserDTO = page.map(user -> 
-            new ResUserDTO(user.getId(),
-            user.getName(),
-            user.getEmail(),
-            user.getGender(),
-            user.getAddress(),
-            user.getAge(),
-            user.getCreatedAt(),
-            user.getUpdatedAt(), 
-            new ResUserDTO.Company(
-                user.getCompany() != null ? user.getCompany().getId() : 0,
-                user.getCompany() != null ? user.getCompany().getName() : null)));
+        Page<User> page = this.userRepository.findAll(spec, pageable);
+        Page<ResUserDTO> UserDTO = page.map(user -> new ResUserDTO(user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getGender(),
+                user.getAddress(),
+                user.getAge(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
+                new ResUserDTO.Company(
+                        user.getCompany() != null ? user.getCompany().getId() : 0,
+                        user.getCompany() != null ? user.getCompany().getName() : null)));
         ResultPaginationDTO<ResUserDTO> result = new ResultPaginationDTO();
         ResultPaginationDTO.Meta meta = new ResultPaginationDTO.Meta();
         meta.setPage(page.getNumber() + 1);
@@ -80,24 +82,31 @@ public class UserService {
         result.setResult(UserDTO.getContent());
         return result;
     }
+
     // hanlde update user
-    public User handleUpdateUser(User user) {
-         User userUpdate = this.handleGetUserById(user.getId()); 
-        if (user.getCompany() !=null) {
-            Optional<Company> companyOptional = this.companyService.handleGetCompanyById(user.getCompany().getId());
-            userUpdate.setCompany(companyOptional.isPresent() ? companyOptional.get() : null );
-        }
-       
-        userUpdate.setName(user.getName());
-        userUpdate.setAddress(user.getAddress());
-        userUpdate.setAge(user.getAge());
-        userUpdate.setGender(user.getGender());
-        return this.userRepository.save(userUpdate);
+    @Transactional
+public RestUpdateUserDTO handleUpdateUser(ReqUpdateUserDTO dto) {
+    User userDB = handleGetUserById(dto.getId());
+    // update basic field
+    userMapper.updateUserFromDTO(dto, userDB);
+    // update company
+    if (dto.getCompanyId() != null) {
+        Company company = companyService
+                .handleGetCompanyById(dto.getCompanyId())
+                .orElseThrow(() -> new RuntimeException("Company not found"));
+
+        userDB.setCompany(company);
     }
+    User userUpdate = userRepository.save(userDB);
+    return userMapper.toUpdateUserDTO(userUpdate);
+}
+
     // handle get user by email
     public User handleGetUserByEmail(String email) {
-        return this.userRepository.findByEmail(email).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with email=" + email, null));
+        return this.userRepository.findByEmail(email).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with email=" + email, null));
     }
+
     // exits by email
     public boolean existsByEmail(String email) {
         return this.userRepository.existsByEmail(email);
@@ -113,7 +122,7 @@ public class UserService {
         resCreateUserDTO.setAddress(user.getAddress());
         resCreateUserDTO.setAge(user.getAge());
         resCreateUserDTO.setCreatedAt(user.getCreatedAt());
-        if (user.getCompany() != null ) {
+        if (user.getCompany() != null) {
             ResCreateUserDTO.Company company = new ResCreateUserDTO.Company();
             company.setId(user.getCompany().getId());
             company.setName(user.getCompany().getName());
@@ -121,7 +130,8 @@ public class UserService {
         }
         return resCreateUserDTO;
     }
-    //convert User to ResUserDTO
+
+    // convert User to ResUserDTO
     public ResUserDTO convertUserToResUserDTO(User user) {
         ResUserDTO resUserDTO = new ResUserDTO();
         resUserDTO.setId(user.getId());
@@ -140,6 +150,7 @@ public class UserService {
         }
         return resUserDTO;
     }
+
     // convert User to RestUpdateUserDTO
     public RestUpdateUserDTO convertUserToResUpdateUserDTO(User user) {
         RestUpdateUserDTO restUpdateUserDTO = new RestUpdateUserDTO();
@@ -165,7 +176,7 @@ public class UserService {
         this.userRepository.save(user);
     }
 
-    public User handleGetUserByRefreshToken(String refreshToken,String email) {
-        return this.userRepository.findByRefreshTokenAndEmail(refreshToken,email);
+    public User handleGetUserByRefreshToken(String refreshToken, String email) {
+        return this.userRepository.findByRefreshTokenAndEmail(refreshToken, email);
     }
 }

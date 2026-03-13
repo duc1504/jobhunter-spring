@@ -18,7 +18,7 @@ import vn.developer.jobhunter.domain.RestResponse;
 
  @RestControllerAdvice
 public class GlobalExceptionHandler {
-@ExceptionHandler(value = {UsernameNotFoundException.class,BadCredentialsException.class, IdInvaliException.class})
+@ExceptionHandler(value = {UsernameNotFoundException.class,BadCredentialsException.class, IdInvaliException.class ,RuntimeException.class})
     public ResponseEntity<RestResponse<Object>> handleAuthExceptions (Exception  ex){
          RestResponse<Object> res = new RestResponse<Object>();
         res.setError(ex.getMessage());

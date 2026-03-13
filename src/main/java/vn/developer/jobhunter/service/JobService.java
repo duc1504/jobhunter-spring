@@ -9,14 +9,17 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import vn.developer.jobhunter.domain.Company;
 import vn.developer.jobhunter.domain.Job;
 import vn.developer.jobhunter.domain.Skill;
 import vn.developer.jobhunter.domain.dto.searchDTO.JobSearchDTO;
+import vn.developer.jobhunter.domain.request.job.ReqUpdateJobDTO;
 import vn.developer.jobhunter.domain.response.ResultPaginationDTO;
 import vn.developer.jobhunter.domain.response.job.ResCreateJobDTO;
 import vn.developer.jobhunter.domain.response.job.ResUpdateJobDTO;
 import vn.developer.jobhunter.domain.specification.JobSpecification;
+import vn.developer.jobhunter.mapper.JobMapper;
 import vn.developer.jobhunter.repository.CompanyRepository;
 import vn.developer.jobhunter.repository.JobRepository;
 import vn.developer.jobhunter.repository.SkillRepository;
@@ -24,17 +27,12 @@ import vn.developer.jobhunter.util.error.IdInvaliException;
 import vn.developer.jobhunter.util.error.ResourceNotFoundException;
 
 @Service
+@RequiredArgsConstructor
 public class JobService {
     private final JobRepository jobRepository;
     private final CompanyRepository companyRepository;
     private final SkillRepository skillRepository;
-
-    public JobService(JobRepository jobRepository, CompanyRepository companyRepository,
-            SkillRepository skillRepository) {
-        this.jobRepository = jobRepository;
-        this.companyRepository = companyRepository;
-        this.skillRepository = skillRepository;
-    }
+    private final JobMapper jobMapper;
 
     // create new job
     @Transactional
@@ -73,51 +71,25 @@ public class JobService {
 
     // update job
     @Transactional
-    public ResUpdateJobDTO handleUpdateJob(Job job) {
-
-        Job jobDB = this.jobRepository.findById(job.getId()).orElseThrow(() -> new RuntimeException("Job not found"));
-        // check company
-        if (job.getCompany() != null) {
-            Company company = this.companyRepository.findById(job.getCompany().getId())
-                    .orElseThrow(() -> new IdInvaliException("Company not found"));
+    public ResUpdateJobDTO handleUpdateJob(ReqUpdateJobDTO dto) {
+        Job jobDB = jobRepository.findById(dto.getId())
+                .orElseThrow(() -> new RuntimeException("Job not found"));
+        // update basic fields
+        jobMapper.updateJobFromDTO(dto, jobDB);
+        // update company
+        if (dto.getCompanyId() != null) {
+            Company company = companyRepository.findById(dto.getCompanyId())
+                    .orElseThrow(() -> new RuntimeException("Company not found"));
             jobDB.setCompany(company);
         }
-        // check skill
-        if (job.getSkills() != null) {
-            List<Long> skillIds = job.getSkills().stream().map(Skill::getId).collect(Collectors.toList());
-            List<Skill> skillsDB = this.skillRepository.findAllById(skillIds);
-            jobDB.setSkills(skillsDB);
+        // update skills
+        if (dto.getSkillIds() != null) {
+            List<Skill> skills = skillRepository.findAllById(dto.getSkillIds());
+            jobDB.setSkills(skills);
         }
-        // update
-        jobDB.setName(job.getName());
-        jobDB.setSalary(job.getSalary());
-        jobDB.setQuantity(job.getQuantity());
-        jobDB.setLocation(job.getLocation());
-        jobDB.setLevel(job.getLevel());
-        jobDB.setStartDate(job.getStartDate());
-        jobDB.setEndDate(job.getEndDate());
-        jobDB.setActive(job.isActive());
-        Job jobUpdate = this.jobRepository.save(jobDB);
-
-        // mapping resupdatejobdto
-        ResUpdateJobDTO dto = new ResUpdateJobDTO();
-        dto.setId(jobUpdate.getId());
-        dto.setName(jobUpdate.getName());
-        dto.setSalary(jobUpdate.getSalary());
-        dto.setQuantity(jobUpdate.getQuantity());
-        dto.setLocation(jobUpdate.getLocation());
-        dto.setLevel(jobUpdate.getLevel());
-        dto.setStartDate(jobUpdate.getStartDate());
-        dto.setEndDate(jobUpdate.getEndDate());
-        dto.setActive(jobUpdate.isActive());
-        dto.setUpdatedAt(jobUpdate.getUpdatedAt());
-        dto.setUpdatedBy(jobUpdate.getUpdatedBy());
-        if (jobUpdate.getSkills() != null) {
-            dto.setSkills(jobUpdate.getSkills().stream().map(Skill::getName).collect(Collectors.toList()));
-        }
-        return dto;
+        Job jobUpdate = jobRepository.save(jobDB);
+        return jobMapper.toUpdateDTO(jobUpdate);
     }
-
     // delete job
     @Transactional
     public void handleDeleteJob(long id) {
@@ -126,8 +98,8 @@ public class JobService {
         job.getSkills().clear();
         jobRepository.delete(job);
     }
-    
-    // get all job 
+
+    // get all job
     public ResultPaginationDTO handleGetAllJob(JobSearchDTO filter, Pageable pageable) {
         Specification<Job> spec = JobSpecification.buildFilterJob(filter);
         Page<Job> pageUser = this.jobRepository.findAll(spec, pageable);
@@ -142,8 +114,10 @@ public class JobService {
 
         return rs;
     }
+
     // get job by id
     public Job handleGetJobById(long id) {
-        return this.jobRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Job not found with id= " + id));
+        return this.jobRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Job not found with id= " + id));
     }
 }

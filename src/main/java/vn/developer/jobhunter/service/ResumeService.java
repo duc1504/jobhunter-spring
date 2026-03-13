@@ -52,7 +52,8 @@ public class ResumeService {
     }
     // delete resume
     public void handleDeleteResume(long id) {
-        this.resumeRepository.deleteById(id);
+        Resume resume = this.resumeRepository.findById(id).orElseThrow( () -> new IdInvaliException("Resume not found"));
+        this.resumeRepository.deleteById(resume.getId());
     }
   // get all resume
 public ResultPaginationDTO<ResResumeDTO> handleGetAllResume(Pageable pageable, ResumeSearchDTO filter) {

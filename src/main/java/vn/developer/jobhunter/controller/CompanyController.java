@@ -8,7 +8,9 @@ import io.micrometer.core.ipc.http.HttpSender.Response;
 import jakarta.validation.Valid;
 import vn.developer.jobhunter.domain.Company;
 import vn.developer.jobhunter.domain.dto.searchDTO.CompanySearchDTO;
+import vn.developer.jobhunter.domain.request.company.ReqUpdateCompanyDTO;
 import vn.developer.jobhunter.domain.response.ResultPaginationDTO;
+import vn.developer.jobhunter.domain.response.company.ResUpdateCompanyDTO;
 import vn.developer.jobhunter.service.CompanyService;
 import vn.developer.jobhunter.util.annotation.ApiMessage;
 import vn.developer.jobhunter.util.error.IdInvaliException;
@@ -49,20 +51,16 @@ public class CompanyController {
     @GetMapping("/companies")
     @ApiMessage(value = "fetch all companies")
     public ResponseEntity<ResultPaginationDTO> getAllCompany(
-     CompanySearchDTO companySearchDTO,
-     Pageable pageable
-    ) {
-        
-        return ResponseEntity.status(HttpStatus.OK).body(companyService.handleGetAllCompany(companySearchDTO,pageable));
+            CompanySearchDTO companySearchDTO,
+            Pageable pageable) {
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(companyService.handleGetAllCompany(companySearchDTO, pageable));
     }
 
- 
-
-
-
     @PutMapping("/companies")
-    public ResponseEntity<Company> updatedCompany(@Valid @RequestBody Company reqCompany) {
-        return ResponseEntity.status(HttpStatus.OK).body(companyService.handleUpdateCompany(reqCompany));
+    public ResponseEntity<ResUpdateCompanyDTO> updateCompany( @Valid @RequestBody ReqUpdateCompanyDTO reqCompany) {
+        return ResponseEntity.ok(companyService.handleUpdateCompany(reqCompany));
     }
 
     @DeleteMapping("/companies/{id}")
@@ -71,6 +69,13 @@ public class CompanyController {
             throw new IdInvaliException("Id must be greater than zero");
         }
         companyService.handleDeleteCompany(id);
-       return ResponseEntity.noContent().build();
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/companies/{id}")
+    public ResponseEntity<Company> getCompanyById(@PathVariable long id) {
+        Company company = companyService.handleGetCompanyById(id)
+                .orElseThrow(() -> new IdInvaliException("Not found by id"));
+        return ResponseEntity.ok(company);
     }
 }

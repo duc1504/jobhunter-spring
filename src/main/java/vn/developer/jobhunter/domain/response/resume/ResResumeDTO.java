@@ -13,6 +13,7 @@ public class ResResumeDTO {
     private String email;
     private String uri;
     private ResumeStateEnum state;
+    private String companyName;
     private Instant createdAt;
     private String createdBy;
     private User user;
